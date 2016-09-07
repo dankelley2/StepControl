@@ -75,6 +75,8 @@ def home(axis):
 				go(b,1,2,axis)
 			if y_lim < 180:
 				go(f,1,2,axis)
+
+
 f = [ [1,0,0,0],
 	[1,1,0,0],
 	[0,1,0,0],
@@ -93,6 +95,8 @@ b = [ [0,0,0,1],
 	[1,0,0,0],
 	[1,0,0,1] ]
 
+log = False
+
 try:
 
 	tty.setraw(sys.stdin.fileno())
@@ -101,19 +105,50 @@ try:
 	print 'Press x to exit'
 	while char != 'x' :
 		char = sys.stdin.read(1)
+		if log:
+			workfile.write(logstep)
+			if timeoff > 0:
+				workfile.write("time.sleep(" + str(timeoff) + ")\n")
+			logstep = ''
+
+		timeoff = 0
+		systime = int(round(time.time()))
 		if char == 'w':
 			go(b,3,2,'y')
-		if char == 's':
+			if log:
+				logstep = "go(b,3,2,'y')\n"
+		elif char == 's':
 			go(f,3,2,'y')
-		if char == 'a':
+			if log:
+				logstep = "go(f,3,2,'y')\n"
+		elif char == 'a':
 			go(b,3,2,'x')
-		if char == 'd':
+			if log:
+				logstep = "go(b,3,2,'x')\n"
+		elif char == 'd':
 			go(f,3,2,'x')	
-
+			if log:
+				logstep = "go(f,3,2,'x')\n"
+		elif char == 'r':
+			os.system('clear')
+			print('Recording')
+			log = True
+			logstep = ''
+			workfile = open('recording.txt', 'w')
+		while True:
+			if char in ('w','a','s','d','x'):
+				break
+			timeoff = int(round(time.time())) - systime
+			os.system('clear')
+			print(timeoff,char)
+			time.sleep(.5)
+			char = sys.stdin.read(1)
 
 except KeyboardInterrupt():
 	raise ValueError('...Ctrl + C Presses. Exiting Now')
 finally:
+	if log:
+		workfile.close()
 	home('x')
 	home('y')
 	GPIO.cleanup()
