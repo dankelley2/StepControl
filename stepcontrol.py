@@ -1,9 +1,15 @@
 import RPi.GPIO as GPIO
 import time
-import tty
+import readchar
 import sys
 import os
 from sys import argv
+
+if len(argv)> 1:
+	routine = argv[1]
+else:
+	print('No routine loaded')
+	time.sleep(1.5)
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -99,12 +105,10 @@ log = False
 
 try:
 
-	tty.setraw(sys.stdin.fileno())
 	char=''
 	os.system('clear')
 	print 'Press x to exit'
 	while char != 'x' :
-		char = sys.stdin.read(1)
 		if log:
 			workfile.write(logstep)
 			if timeoff > 0:
@@ -112,7 +116,10 @@ try:
 			logstep = ''
 
 		timeoff = 0
-		systime = int(round(time.time()))
+		starttime = int(round(time.time()))
+		char = readchar.readchar()
+		timeoff = int(round(time.time())) - starttime
+		print('Pressed ' + char + ' after ' + str(timeoff) + ' seconds.') 
 		if char == 'w':
 			go(b,3,2,'y')
 			if log:
@@ -129,20 +136,17 @@ try:
 			go(f,3,2,'x')	
 			if log:
 				logstep = "go(f,3,2,'x')\n"
-		elif char == 'r':
+		elif char == 'r' and log != True:
 			os.system('clear')
 			print('Recording')
 			log = True
 			logstep = ''
-			workfile = open('recording.txt', 'w')
-		while True:
-			if char in ('w','a','s','d','x'):
-				break
-			timeoff = int(round(time.time())) - systime
-			os.system('clear')
-			print(timeoff,char)
-			time.sleep(.5)
-			char = sys.stdin.read(1)
+			workfile = open('recording.py', 'w')
+			#workfile.write('def run():\n')
+		elif char == 'p' and len(argv) > 1:
+			print('Playback Started')
+			execfile(routine)
+			print('Playback Complete')
 
 except KeyboardInterrupt():
 	raise ValueError('...Ctrl + C Presses. Exiting Now')
