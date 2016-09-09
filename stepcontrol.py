@@ -33,8 +33,6 @@ x_lim = float(180) #using type float() so we don't lose degrees over time from r
 y_lim = float(180)
 
 def checklimit(axis): #Returns true or false during go() to signal that the global limits are within/outside their set range
-	global x_lim
-	global y_lim
 	if axis == 'x':
 		return x_lim >= 360 or x_lim <= 0
 	else:
