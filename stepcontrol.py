@@ -78,6 +78,27 @@ def home(axis):
 			if y_lim < 180:
 				go(f,1,2,axis)
 
+def compile(log,mode):
+	if mode == 1:
+		workfile = open('recording.txt', 'w')
+		multiplier = 1
+		for number, action in enumerate(log):
+			if isinstance(action, int):
+				workfile.write("time.sleep(" + str(action) + ")\n")
+				continue
+			elif action == 'x':
+				break
+			elif action == 'h':
+				workfile.write(keylog[action])
+			elif action == log[number+1]: #if action = next action
+				multiplier += 1 #We're going to need multiples!
+				continue
+			if multiplier > 1:
+				workfile.write(keylog[action][0] + str(keylog[action][1]*multiplier) + keylog[action][2])
+				multiplier = 1
+			else:
+				workfile.write(keylog[action][0] + str(keylog[action][1]) + keylog[action][2])
+		workfile.close()	
 
 f = [ [1,0,0,0], #each group in this sequence represents the state of four output pins.
 	[1,1,0,0], #imagine the diagonal shape of 1's as the direction we're pushing magnetic current
@@ -108,15 +129,16 @@ keymap = {'w':[b,1,2,'y'], #Created a dictionary of all key mappings, and direci
 	  'j':[b,64,2,'x'],
 	  'l':[f,64,2,'x']}
 
-keylog = {'w':"go(b,1,2,'y')\n", #These are the strings put into a recording file.
-	  's':"go(f,1,2,'y')\n",
-	  'a':"go(b,1,2,'x')\n",
-	  'd':"go(f,1,2,'x')\n",
-	  'i':"go(b,64,2,'y')\n",
-	  'k':"go(f,64,2,'y')\n",
-	  'j':"go(b,64,2,'x')\n",
-	  'l':"go(f,64,2,'x')\n",
-	  'h':"home('x')\nhome('y')"}
+keylog = {'w':["go(b,",1,",2,'y')\n"], #These are the strings put into a recording file.
+	  's':["go(f,",1,",2,'y')\n"],
+	  'a':["go(b,",1,",2,'x')\n"],
+	  'd':["go(f,",1,",2,'x')\n"],
+	  'i':["go(b,",64,",2,'y')\n"],
+	  'k':["go(f,",64,",2,'y')\n"],
+	  'j':["go(b,",64,",2,'x')\n"],
+	  'l':["go(f,",64,",2,'x')\n"],
+	  'h':["home('x')\nhome('y')\n"],
+	  'x':["\n"]}
 
 try: #The Action
 
@@ -135,17 +157,16 @@ try: #The Action
 		if char in keymap: #grab the appropriate settings for each keypress that exists in our Keymap Dictionary, and work magic in the go() function
 			go(*keymap[char])
 
-		if log: #If we're recording, let's log what we just did from a pre compiled list of strings, Keylog.
+		if log: #If we're recording, let's log what we just did from a pre compiled list of strings, Keylog.			
+			if timeoff > 2: #Ignore keypress delays that took less than two seconds. change as needed
+				currentlog.append(timeoff)
 			if char in keylog:
-				workfile.write(keylog[char])
-				if timeoff > 2: #Ignore keypress delays that took less than two seconds. change as needed
-					workfile.write("time.sleep(" + str(timeoff) + ")\n")
-
-		elif char == 'r' and not log: #Start recording. Open working file. (overwrite it each time)
+				currentlog.append(char)
+		if char == 'r' and not log: #Logging changed 9/9/16, log appends to a list and then unpacks @ Finally
 			os.system('clear')
 			print('Recording')
 			log = True
-			workfile = open('recording.txt', 'w')
+			currentlog = []
 		elif char == 'h': 
 			home('x')
 			home('y')
@@ -158,7 +179,7 @@ except KeyboardInterrupt(): #I'm still new at this...
 	raise ValueError('...Ctrl + C Presses. Exiting Now')
 finally:
 	if log: #If we opened a file, lets save and close it, then rename it within the system
-		workfile.close()
+		compile(currentlog,1)
 		os.system('clear')
 		fname = raw_input('Please name your recording: ')
 		os.system('mv recording.txt ' + str(fname) + '.txt')
