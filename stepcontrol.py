@@ -36,12 +36,9 @@ def checklimit(axis): #Returns true or false during go() to signal that the glob
 	global x_lim
 	global y_lim
 	if axis == 'x':
-		if x_lim >= 360 or x_lim <= 0:
-			return True
-	if axis == 'y':
-		if y_lim >= 300 or y_lim <= 60:
-			return True
-	return False
+		return x_lim >= 360 or x_lim <= 0
+	else:
+		return y_lim >= 300 or y_lim <= 60
 
 def updatelim(dir,axis): #update current angle of global limit vars based on current vector
 	global x_lim
@@ -138,7 +135,7 @@ try: #The Action
 		print('Pressed ' + char + ' after ' + str(timeoff) + ' seconds.')
 #Main
 		if char in keymap: #grab the appropriate settings for each keypress that exists in our Keymap Dictionary, and work magic in the go() function
-			go(keymap[char][0],keymap[char][1],keymap[char][2],keymap[char][3])
+			go(*keymap[char])
 
 		if log: #If we're recording, let's log what we just did from a pre compiled list of strings, Keylog.
 			if char in keylog:
@@ -146,7 +143,7 @@ try: #The Action
 				if timeoff > 2: #Ignore keypress delays that took less than two seconds. change as needed
 					workfile.write("time.sleep(" + str(timeoff) + ")\n")
 
-		elif char == 'r' and log != True: #Start recording. Open working file. (overwrite it each time)
+		elif char == 'r' and not log: #Start recording. Open working file. (overwrite it each time)
 			os.system('clear')
 			print('Recording')
 			log = True
