@@ -17,7 +17,6 @@ else:
 
 GPIO.setmode(GPIO.BOARD) #Set Raspberry Pi GPIO to BOARD numbering (as opposed to BCM)
 
-global ControlPin #Create a Dictionary of the GPIO Pins that control the X and Y axis stepper motors (using BOARD numbers)
 ControlPin = {'x':[29,31,33,35],
 		'y':[37,36,38,40]}
 
@@ -30,8 +29,6 @@ for pin in ControlPin['y']:
 
 GPIO.setup(7, GPIO.IN, pull_up_down = GPIO.PUD_DOWN) #Keeping this for when I add sensors / limit switches, useless for now
 
-global x_lim #set the badly named global limit vars to where the gimbal should always start (180 for x/y is pointing straight up) 
-global y_lim
 x_lim = float(180) #using type float() so we don't lose degrees over time from rounding
 y_lim = float(180)
 
@@ -149,15 +146,15 @@ try: #The Action
 				if timeoff > 2: #Ignore keypress delays that took less than two seconds. change as needed
 					workfile.write("time.sleep(" + str(timeoff) + ")\n")
 
-		if char == 'r' and log != True: #Start recording. Open working file. (overwrite it each time)
+		elif char == 'r' and log != True: #Start recording. Open working file. (overwrite it each time)
 			os.system('clear')
 			print('Recording')
 			log = True
 			workfile = open('recording.txt', 'w')
-		if char == 'h': 
+		elif char == 'h': 
 			home('x')
 			home('y')
-		if char == 'p' and len(argv) > 1: #If we loaded a file, we will execute it using the sketchy execfile() function
+		elif char == 'p' and len(argv) > 1: #If we loaded a file, we will execute it using the sketchy execfile() function
 			print('Playback Started')
 			execfile(routine)
 			print('Playback Complete')
