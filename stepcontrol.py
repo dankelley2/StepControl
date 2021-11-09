@@ -66,13 +66,13 @@ def home(axis):
 	global x_lim
 	global y_lim
 	if axis == 'x': #pretty simple. Monitor x and y axis angles until each is at 180 (striaght up).
-		while x_lim <> 180:
+		while x_lim != 180:
 			if x_lim > 180:
 				go(b,1,2,axis)
 			if x_lim < 180:
 				go(f,1,2,axis)	
 	if axis == 'y':
-		while y_lim <> 180:
+		while y_lim != 180:
 			if y_lim > 180:
 				go(b,1,2,axis)
 			if y_lim < 180:
@@ -144,7 +144,7 @@ try: #The Action
 
 	char='' #declare as string
 	os.system('clear') #clear the screen
-	print 'Press x to exit' #basic instruction :)
+	print('Press x to exit') #basic instruction :)
 	while char != 'x' : #I don't need explain this much.
 
 		timeoff = 0
